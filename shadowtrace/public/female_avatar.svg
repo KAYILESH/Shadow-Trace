@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <circle cx="100" cy="100" r="100" fill="#2563EB"/>
+  <!-- Shadow -->
+  <ellipse cx="120" cy="120" rx="80" ry="80" fill="#1D4ED8" opacity="0.4"/>
+  <!-- Head -->
+  <circle cx="100" cy="72" r="30" fill="white"/>
+  <!-- Long hair left -->
+  <path d="M70 66 Q62 100 65 130" stroke="white" stroke-width="14" fill="none" stroke-linecap="round"/>
+  <!-- Long hair right -->
+  <path d="M130 66 Q138 100 135 130" stroke="white" stroke-width="14" fill="none" stroke-linecap="round"/>
+  <!-- Neck -->
+  <rect x="89" y="99" width="22" height="16" rx="4" fill="white"/>
+  <!-- Shoulders/body -->
+  <ellipse cx="100" cy="150" rx="50" ry="36" fill="white"/>
+</svg>
