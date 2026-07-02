@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import {
   LayoutDashboard,
   ShieldAlert,
@@ -9,9 +10,7 @@ import {
   Settings,
   Bell,
   LogOut,
-  Shield,
   BarChart2,
-  Trash2,
   Sparkles
 } from "lucide-react";
 import Link from "next/link";
@@ -95,8 +94,15 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="flex h-16 items-center px-6">
         <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary/15 to-secondary/15 ring-1 ring-primary/25">
-            <Shield className="h-4 w-4 text-primary" />
+          <div className="flex h-8 w-8 items-center justify-center">
+            <Image
+              src="/logo.png"
+              alt="ScanRadar Logo"
+              width={32}
+              height={32}
+              className="rounded-lg"
+              priority
+            />
           </div>
           <span className="text-lg font-bold text-foreground">
             Scan<span className="text-primary">Radar</span>

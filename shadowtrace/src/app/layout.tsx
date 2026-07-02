@@ -22,12 +22,20 @@ export const metadata: Metadata = {
     "data broker removal",
     "online privacy",
   ],
+  icons: {
+    icon: [
+      { url: "/logo.png", type: "image/png" },
+    ],
+    apple: "/logo.png",
+    shortcut: "/logo.png",
+  },
   openGraph: {
     title: "ScanRadar — Digital Footprint Cleaner",
     description:
       "Erase your digital footprint before they find you. AI-powered privacy protection.",
     type: "website",
     siteName: "ScanRadar",
+    images: [{ url: "/logo.png" }],
   },
   robots: "index, follow",
 };

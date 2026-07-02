@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import {
-  Shield,
   Menu,
   X,
   Fingerprint,
@@ -49,9 +49,15 @@ export default function Navbar() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 lg:px-8">
           {/* Logo */}
           <a href="#" className="group flex items-center gap-2.5">
-            <div className="relative flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary/20 to-secondary/20 ring-1 ring-primary/30 transition-all duration-300 group-hover:ring-primary/60 group-hover:shadow-[0_0_15px_rgba(0,245,212,0.2)]">
-              <Shield className="h-5 w-5 text-primary transition-transform duration-300 group-hover:scale-110" />
-              <div className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-primary animate-pulse-glow" />
+            <div className="relative flex h-9 w-9 items-center justify-center">
+              <Image
+                src="/logo.png"
+                alt="ScanRadar Logo"
+                width={36}
+                height={36}
+                className="rounded-lg transition-transform duration-300 group-hover:scale-110"
+                priority
+              />
             </div>
             <div className="flex flex-col leading-none">
               <span className="text-lg font-bold tracking-tight text-foreground">
