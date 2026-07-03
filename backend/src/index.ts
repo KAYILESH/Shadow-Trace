@@ -21,9 +21,25 @@ const PORT = process.env.PORT || 3001;
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
 
 // ── Middleware ─────────────────────────────────────────────────────────────────
+const allowedOrigins = [
+  FRONTEND_URL,
+  "http://localhost:3000",
+  "http://localhost:3001",
+  // Allow any Vercel deployment (production + previews)
+  /^https:\/\/.*\.vercel\.app$/,
+];
+
 app.use(
   cors({
-    origin: [FRONTEND_URL, "http://localhost:3000"],
+    origin: (origin, callback) => {
+      // Allow requests with no origin (e.g. curl, Postman, server-to-server)
+      if (!origin) return callback(null, true);
+      const allowed = allowedOrigins.some((o) =>
+        typeof o === "string" ? o === origin : o.test(origin)
+      );
+      if (allowed) return callback(null, true);
+      callback(new Error(`CORS: origin ${origin} not allowed`));
+    },
     credentials: true,
     methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
