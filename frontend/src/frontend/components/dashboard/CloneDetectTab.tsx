@@ -6,12 +6,19 @@ import {
   Upload, Globe, Shield, ShieldAlert, ShieldCheck,
   AlertTriangle, CheckCircle2, XCircle, ScanSearch,
   ImageIcon, Link2, Loader2, Eye, Fingerprint,
-  Palette, LogIn, Info,
+  Palette, LogIn, Info, BookOpen, ChevronDown, ChevronUp,
+  AlertOctagon, ShieldOff, Copy, Check,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { backendFetch } from "@/lib/backendFetch";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
+interface LearningContent {
+  whyDangerous:     string;
+  redFlagsToNotice: string[];
+  howToStaySafe:    string[];
+}
+
 interface CloneResult {
   similarityScore: number;
   copiedLoginPage: boolean;
@@ -22,6 +29,7 @@ interface CloneResult {
   explanation: string;
   confidence: "HIGH" | "MEDIUM" | "LOW";
   modelUsed?: string;
+  learning: LearningContent | null;
 }
 
 // ─── Config maps ──────────────────────────────────────────────────────────────
@@ -142,6 +150,210 @@ function MetricCard({
   );
 }
 
+// ─── Scam Learning Panel ──────────────────────────────────────────────────────
+function ScamLearningPanel({
+  learning,
+  verdict,
+}: {
+  learning: LearningContent;
+  verdict: "FAKE" | "SUSPICIOUS";
+}) {
+  const [open, setOpen]     = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    const text = [
+      "⚠️ SCAM ALERT — Do NOT use this site!",
+      "",
+      "Why it's dangerous:",
+      learning.whyDangerous,
+      "",
+      "🚩 Red flags to notice:",
+      ...learning.redFlagsToNotice.map((f) => `• ${f}`),
+      "",
+      "🛡️ How to stay safe:",
+      ...learning.howToStaySafe.map((t) => `• ${t}`),
+      "",
+      "— Detected by ScanRadar AI",
+    ].join("\n");
+
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      toast.success("Warning copied to clipboard!");
+      setTimeout(() => setCopied(false), 2500);
+    });
+  };
+
+  const accentColor = verdict === "FAKE" ? "text-red-500" : "text-orange-500";
+  const accentBg    = verdict === "FAKE" ? "bg-red-500/10" : "bg-orange-500/10";
+  const accentRing  = verdict === "FAKE" ? "ring-red-500/25" : "ring-orange-500/25";
+  const toggleBg    = verdict === "FAKE" ? "from-red-500/15 to-purple-500/10" : "from-orange-500/15 to-amber-500/10";
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.45 }}
+    >
+      {/* ── Toggle button ── */}
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className={`group w-full flex items-center gap-3 rounded-2xl bg-gradient-to-r ${toggleBg} px-5 py-3.5 ring-1 ${accentRing} transition-all hover:ring-offset-1 hover:shadow-lg`}
+      >
+        <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${accentBg}`}>
+          <BookOpen className={`h-4 w-4 ${accentColor}`} />
+        </div>
+        <div className="flex-1 text-left">
+          <p className={`text-sm font-bold ${accentColor}`}>📚 Scam Learning Mode</p>
+          <p className="text-[11px] text-muted-foreground">
+            Learn why this is dangerous and how to protect yourself
+          </p>
+        </div>
+        <motion.div
+          animate={{ rotate: open ? 180 : 0 }}
+          transition={{ duration: 0.25 }}
+        >
+          <ChevronDown className={`h-4 w-4 ${accentColor}`} />
+        </motion.div>
+      </button>
+
+      {/* ── Expandable panel ── */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, height: 0, marginTop: 0 }}
+            animate={{ opacity: 1, height: "auto", marginTop: 12 }}
+            exit={{ opacity: 0, height: 0, marginTop: 0 }}
+            transition={{ duration: 0.35, ease: "easeInOut" }}
+            className="overflow-hidden"
+          >
+            <div className="space-y-3">
+
+              {/* Section 1 — Why It's Dangerous */}
+              <motion.div
+                initial={{ opacity: 0, x: -12 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.05 }}
+                className="glass rounded-2xl p-5 ring-1 ring-red-500/20"
+              >
+                <div className="flex items-center gap-2.5 mb-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-red-500/10">
+                    <AlertOctagon className="h-4 w-4 text-red-500" />
+                  </div>
+                  <h3 className="font-bold text-sm text-foreground">Why It&apos;s Dangerous</h3>
+                  <span className="ml-auto text-[10px] font-semibold text-red-500 bg-red-500/10 px-2 py-0.5 rounded-full ring-1 ring-red-500/20">
+                    THREAT
+                  </span>
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {learning.whyDangerous}
+                </p>
+              </motion.div>
+
+              {/* Section 2 — Red Flags */}
+              {learning.redFlagsToNotice.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, x: -12 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.12 }}
+                  className="glass rounded-2xl p-5 ring-1 ring-orange-500/20"
+                >
+                  <div className="flex items-center gap-2.5 mb-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-orange-500/10">
+                      <ShieldOff className="h-4 w-4 text-orange-500" />
+                    </div>
+                    <h3 className="font-bold text-sm text-foreground">Red Flags to Notice</h3>
+                    <span className="ml-auto text-[10px] font-semibold text-orange-500 bg-orange-500/10 px-2 py-0.5 rounded-full ring-1 ring-orange-500/20">
+                      {learning.redFlagsToNotice.length} flags
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    {learning.redFlagsToNotice.map((flag, i) => (
+                      <motion.div
+                        key={i}
+                        initial={{ opacity: 0, x: -6 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.15 + i * 0.05 }}
+                        className="flex items-start gap-2.5 rounded-xl bg-orange-500/5 px-3 py-2.5"
+                      >
+                        <AlertTriangle className="h-3.5 w-3.5 text-orange-500 shrink-0 mt-0.5" />
+                        <span className="text-sm text-foreground">{flag}</span>
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Section 3 — How to Stay Safe */}
+              {learning.howToStaySafe.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, x: -12 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="glass rounded-2xl p-5 ring-1 ring-emerald-500/20"
+                >
+                  <div className="flex items-center gap-2.5 mb-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/10">
+                      <Shield className="h-4 w-4 text-emerald-500" />
+                    </div>
+                    <h3 className="font-bold text-sm text-foreground">How to Stay Safe</h3>
+                    <span className="ml-auto text-[10px] font-semibold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full ring-1 ring-emerald-500/20">
+                      {learning.howToStaySafe.length} tips
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    {learning.howToStaySafe.map((tip, i) => (
+                      <motion.div
+                        key={i}
+                        initial={{ opacity: 0, x: -6 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.22 + i * 0.05 }}
+                        className="flex items-start gap-2.5 rounded-xl bg-emerald-500/5 px-3 py-2.5"
+                      >
+                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                        <span className="text-sm text-foreground">{tip}</span>
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Share Warning */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.35 }}
+                className="flex items-center gap-3 rounded-2xl glass px-4 py-3 ring-1 ring-black/10"
+              >
+                <Info className="h-4 w-4 text-muted-foreground shrink-0" />
+                <p className="flex-1 text-xs text-muted-foreground">
+                  Share this warning with someone who might visit this site
+                </p>
+                <button
+                  onClick={handleCopy}
+                  className="flex items-center gap-1.5 rounded-xl bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary ring-1 ring-primary/20 hover:bg-primary/20 transition-colors"
+                >
+                  {copied ? (
+                    <><Check className="h-3 w-3" /> Copied!</>
+                  ) : (
+                    <><Copy className="h-3 w-3" /> Copy Warning</>
+                  )}
+                </button>
+              </motion.div>
+
+              {/* AI attribution */}
+              <div className="flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground/50">
+                <BookOpen className="h-3 w-3" />
+                <span>AI-generated educational content · ScanRadar Learning Mode</span>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function CloneDetectTab() {
   const [screenshot, setScreenshot]         = useState<File | null>(null);
@@ -203,8 +415,9 @@ export default function CloneDetectTab() {
       [25, "Connecting to AI…"],
       [45, "Analysing visual structure…"],
       [65, "Detecting cloned elements…"],
-      [80, "Generating verdict…"],
-      [92, "Finalising report…"],
+      [78, "Generating learning insights…"],
+      [90, "Generating verdict…"],
+      [96, "Finalising report…"],
     ];
 
     let stepIdx = 0;
@@ -217,10 +430,9 @@ export default function CloneDetectTab() {
     }, 900);
 
     try {
-      // Convert image to base64 (strip data: prefix, backend adds it back safely)
       let screenshotBase64: string | undefined;
       if (screenshot && screenshotPreview) {
-        screenshotBase64 = screenshotPreview; // keep full data-URL
+        screenshotBase64 = screenshotPreview;
       }
 
       const body: Record<string, string | undefined> = {
@@ -483,6 +695,14 @@ export default function CloneDetectTab() {
               );
             })()}
 
+            {/* ── Scam Learning Mode ── */}
+            {result.learning && result.verdict !== "LEGITIMATE" && (
+              <ScamLearningPanel
+                learning={result.learning}
+                verdict={result.verdict as "FAKE" | "SUSPICIOUS"}
+              />
+            )}
+
             {/* Metric Cards Grid */}
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               <MetricCard
@@ -598,7 +818,7 @@ export default function CloneDetectTab() {
                 <li className="flex items-start gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" /> Upload a screenshot of the suspicious site</li>
                 <li className="flex items-start gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" /> Optionally enter the suspected URL and the genuine site URL</li>
                 <li className="flex items-start gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" /> Our AI analyses logos, colors, layout, login forms and more</li>
-                <li className="flex items-start gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" /> Get a similarity score, verdict, and list of red flags</li>
+                <li className="flex items-start gap-1.5"><BookOpen className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" /> <span><span className="font-semibold text-primary">Scam Learning Mode</span> explains why it&apos;s dangerous and how to stay safe</span></li>
               </ul>
             </div>
           </div>

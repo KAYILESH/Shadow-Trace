@@ -20,6 +20,12 @@ const VISION_MODELS = [
 
 
 // ─── Types ────────────────────────────────────────────────────────────────────
+interface LearningContent {
+  whyDangerous:     string;
+  redFlagsToNotice: string[];
+  howToStaySafe:    string[];
+}
+
 interface CloneAnalysisResult {
   similarityScore: number;           // 0–100
   copiedLoginPage: boolean;
@@ -29,6 +35,7 @@ interface CloneAnalysisResult {
   suspiciousElements: string[];
   explanation: string;
   confidence: "HIGH" | "MEDIUM" | "LOW";
+  learning: LearningContent | null;  // populated for FAKE/SUSPICIOUS only
 }
 
 interface OpenRouterMessage {
@@ -52,15 +59,26 @@ Respond ONLY with a valid JSON object matching this exact schema (no extra text,
   "verdict": <"FAKE"|"SUSPICIOUS"|"LEGITIMATE">,
   "suspiciousElements": [<string>, ...],
   "explanation": "<2-3 sentence plain text summary>",
-  "confidence": <"HIGH"|"MEDIUM"|"LOW">
+  "confidence": <"HIGH"|"MEDIUM"|"LOW">,
+  "learning": <null if LEGITIMATE, or object if FAKE/SUSPICIOUS>:
+  {
+    "whyDangerous": "<2-3 sentences explaining the specific threat this site poses and what attackers are trying to steal>",
+    "redFlagsToNotice": ["<specific red flag found in THIS site>", ...],
+    "howToStaySafe": ["<actionable safety tip relevant to this attack type>", ...]
+  }
 }
 
 Scoring guidance:
 - similarityScore 85-100 → likely FAKE
-- similarityScore 50-84  → SUSPICIOUS  
+- similarityScore 50-84  → SUSPICIOUS
 - similarityScore 0-49   → LEGITIMATE
 
 Look for: misspelled domain hints in URL bars, pixelated logos, inconsistent fonts, copied color palettes, generic login forms, suspicious SSL indicators, overlapping text, off-brand icons.
+
+For the learning block (FAKE/SUSPICIOUS only):
+- whyDangerous: Reference the specific brand being impersonated and the data at risk (credentials, payment info, etc.)
+- redFlagsToNotice: List 3-5 concrete, specific visual or technical cues found IN THIS SITE (e.g. "The logo is pixelated and slightly off-color", "The URL bar shows 'paypa1.com' instead of 'paypal.com'")
+- howToStaySafe: List 3-5 actionable steps tailored to this attack type (e.g. "Never enter your PayPal password on any site other than paypal.com")
 
 If no URL is provided, rely purely on visual analysis of the screenshot.
 If no screenshot is provided (URL only), analyze based on the URL structure for phishing patterns.`;
@@ -116,7 +134,7 @@ async function tryModel(
       "HTTP-Referer": "https://scanradar.app",
       "X-Title": "ScanRadar Clone Detector",
     },
-    body: JSON.stringify({ model, messages, max_tokens: 600 }),
+    body: JSON.stringify({ model, messages, max_tokens: 1200 }),
   });
 
   if (!response.ok) {
@@ -138,6 +156,19 @@ async function tryModel(
   const parsed = JSON.parse(jsonMatch[0]) as Partial<CloneAnalysisResult>;
 
   // Validate and normalise
+  const verdict = parsed.verdict ?? "SUSPICIOUS";
+
+  // Extract learning content (only meaningful for FAKE/SUSPICIOUS)
+  let learning: LearningContent | null = null;
+  if (verdict !== "LEGITIMATE" && parsed.learning && typeof parsed.learning === "object") {
+    const l = parsed.learning as Partial<LearningContent>;
+    learning = {
+      whyDangerous:     typeof l.whyDangerous === "string" ? l.whyDangerous : "This site appears to be designed to steal your personal information.",
+      redFlagsToNotice: Array.isArray(l.redFlagsToNotice) ? l.redFlagsToNotice.slice(0, 6) : [],
+      howToStaySafe:    Array.isArray(l.howToStaySafe)    ? l.howToStaySafe.slice(0, 6)    : [],
+    };
+  }
+
   return {
     similarityScore: typeof parsed.similarityScore === "number"
       ? Math.min(100, Math.max(0, parsed.similarityScore))
@@ -145,12 +176,13 @@ async function tryModel(
     copiedLoginPage:   parsed.copiedLoginPage   ?? false,
     fakeLogoDetected:  parsed.fakeLogoDetected  ?? false,
     colorThemeCopied:  parsed.colorThemeCopied  ?? "Different",
-    verdict:           parsed.verdict           ?? "SUSPICIOUS",
+    verdict,
     suspiciousElements: Array.isArray(parsed.suspiciousElements)
       ? parsed.suspiciousElements.slice(0, 8)
       : [],
     explanation: parsed.explanation ?? "Analysis complete.",
     confidence:  parsed.confidence  ?? "MEDIUM",
+    learning,
   };
 }
 
