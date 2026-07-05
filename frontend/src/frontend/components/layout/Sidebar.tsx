@@ -12,7 +12,8 @@ import {
   Shield,
   BarChart2,
   Trash2,
-  Sparkles
+  Sparkles,
+  Radar,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -21,14 +22,15 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
 const navItems = [
-  { name: "Overview", icon: LayoutDashboard, href: "/dashboard" },
-  { name: "Analytics", icon: BarChart2, href: "/dashboard/analytics" },
-  { name: "AI Advisor", icon: Sparkles, href: "/dashboard/advisor" },
-  { name: "Scans", icon: Search, href: "/dashboard/scans" },
-  { name: "Risk Score", icon: ShieldAlert, href: "/dashboard/risk" },
-  // { name: "Deletion Center", icon: Trash2, href: "/dashboard/deletions" }, // TODO: re-enable when ready
-  { name: "Notifications", icon: Bell, href: "/dashboard/notifications" },
-  { name: "Settings", icon: Settings, href: "/dashboard/settings" },
+  { name: "Overview",      icon: LayoutDashboard, href: "/dashboard",          badge: null      },
+  { name: "Analytics",     icon: BarChart2,        href: "/dashboard/analytics", badge: null      },
+  { name: "AI Advisor",    icon: Sparkles,         href: "/dashboard/advisor",   badge: null      },
+  { name: "Scans",         icon: Search,           href: "/dashboard/scans",     badge: null      },
+  { name: "Risk Score",    icon: ShieldAlert,      href: "/dashboard/risk",      badge: null      },
+  { name: "Domain Predict",icon: Radar,            href: "/dashboard/predict",   badge: "New"     },
+  // { name: "Deletion Center", icon: Trash2, href: "/dashboard/deletions", badge: null }, // TODO: re-enable when ready
+  { name: "Notifications", icon: Bell,             href: "/dashboard/notifications", badge: null  },
+  { name: "Settings",      icon: Settings,         href: "/dashboard/settings",  badge: null      },
 ];
 
 // ── Sidebar Profile (fetches avatar_config + name live) ───────────────────────
@@ -124,6 +126,11 @@ export default function Sidebar() {
                   }`}>
                   <item.icon className={`h-4 w-4 ${isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"}`} />
                   {item.name}
+                  {item.badge && (
+                    <span className="ml-auto text-[9px] font-bold uppercase tracking-wide text-primary bg-primary/10 ring-1 ring-primary/25 px-1.5 py-0.5 rounded-full animate-pulse">
+                      {item.badge}
+                    </span>
+                  )}
                   {isActive && (
                     <motion.div layoutId="sidebar-active"
                       className="absolute left-0 h-8 w-1 rounded-r-full bg-primary" />

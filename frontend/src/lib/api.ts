@@ -162,6 +162,15 @@ export const api = {
         body: JSON.stringify({ platform, completed }),
       }),
   },
+
+  // Domain Predict (AI Scam Prediction)
+  domainPredict: {
+    analyze: (domain: string) =>
+      apiFetch("/api/domain-predict", {
+        method: "POST",
+        body: JSON.stringify({ domain }),
+      }),
+  },
 };
 
 export default api;
