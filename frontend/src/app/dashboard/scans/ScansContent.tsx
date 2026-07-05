@@ -24,8 +24,10 @@ import Sidebar from "@/frontend/components/layout/Sidebar";
 import TopHeader from "@/frontend/components/layout/TopHeader";
 import IdentityScanTab from "@/frontend/components/dashboard/IdentityScanTab";
 import PhoneScanTab from "@/frontend/components/dashboard/PhoneScanTab";
+import CloneDetectTab from "@/frontend/components/dashboard/CloneDetectTab";
 import toast from "react-hot-toast";
 import { backendFetch } from "@/lib/backendFetch";
+import { ScanSearch } from "lucide-react";
 
 interface ScanResult {
   platform: string;
@@ -55,7 +57,7 @@ const platformIcons: Record<string, React.ReactNode> = {
 
 export default function ScansContent({ user, pastScans }: Props) {
   const [sidebarOpen, setSidebarOpen]   = useState(false);
-  const [activeTab, setActiveTab]       = useState<"username" | "identity" | "phone">("username");
+  const [activeTab, setActiveTab]       = useState<"username" | "identity" | "phone" | "clone">("username");
   const [username, setUsername]         = useState("");
   const [isScanning, setIsScanning]     = useState(false);
   const [progress, setProgress]         = useState(0);
@@ -202,6 +204,17 @@ export default function ScansContent({ user, pastScans }: Props) {
                 >
                   <Phone className="h-4 w-4" />
                   Mobile Number
+                </button>
+                <button
+                  onClick={() => setActiveTab("clone")}
+                  className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200 ${
+                    activeTab === "clone"
+                      ? "bg-white text-foreground shadow-sm ring-1 ring-black/10"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <ScanSearch className="h-4 w-4" />
+                  Clone Detect
                 </button>
               </div>
             </div>
@@ -469,6 +482,9 @@ export default function ScansContent({ user, pastScans }: Props) {
 
             {/* ── Phone Scan Tab ─────────────────────────────────────────── */}
             {activeTab === "phone" && <PhoneScanTab />}
+
+            {/* ── Clone Detect Tab ────────────────────────────────────────── */}
+            {activeTab === "clone" && <CloneDetectTab />}
 
           </motion.div>
         </main>

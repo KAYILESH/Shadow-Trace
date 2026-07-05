@@ -13,6 +13,7 @@ import notificationsRouter from "./routes/notifications";
 import settingsRouter from "./routes/settings";
 import searchRouter from "./routes/search";
 import deletionsRouter from "./routes/deletions";
+import cloneDetectRouter from "./routes/clone-detect";
 
 dotenv.config();
 
@@ -64,6 +65,7 @@ app.use("/api/notifications", notificationsRouter);
 app.use("/api/settings", settingsRouter);
 app.use("/api/search", searchRouter);
 app.use("/api/deletions", deletionsRouter);
+app.use("/api/clone-detect", cloneDetectRouter);
 
 // ── 404 handler ───────────────────────────────────────────────────────────────
 app.use((_req, res) => {
