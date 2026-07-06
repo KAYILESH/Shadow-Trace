@@ -14,6 +14,7 @@ import {
   Trash2,
   Sparkles,
   Radar,
+  QrCode,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -27,7 +28,8 @@ const navItems = [
   { name: "AI Advisor",    icon: Sparkles,         href: "/dashboard/advisor",   badge: null      },
   { name: "Scans",         icon: Search,           href: "/dashboard/scans",     badge: null      },
   { name: "Risk Score",    icon: ShieldAlert,      href: "/dashboard/risk",      badge: null      },
-  { name: "Domain Predict",icon: Radar,            href: "/dashboard/predict",   badge: "New"     },
+  { name: "Domain Predict",icon: Radar,            href: "/dashboard/predict",   badge: null      },
+  { name: "QR Scanner",    icon: QrCode,           href: "/dashboard/qr-scan",   badge: "New"     },
   // { name: "Deletion Center", icon: Trash2, href: "/dashboard/deletions", badge: null }, // TODO: re-enable when ready
   { name: "Notifications", icon: Bell,             href: "/dashboard/notifications", badge: null  },
   { name: "Settings",      icon: Settings,         href: "/dashboard/settings",  badge: null      },

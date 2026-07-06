@@ -15,6 +15,7 @@ import searchRouter from "./routes/search";
 import deletionsRouter from "./routes/deletions";
 import cloneDetectRouter from "./routes/clone-detect";
 import domainPredictRouter from "./routes/domain-predict";
+import qrScanRouter from "./routes/qr-scan";
 
 dotenv.config();
 
@@ -68,6 +69,7 @@ app.use("/api/search", searchRouter);
 app.use("/api/deletions", deletionsRouter);
 app.use("/api/clone-detect", cloneDetectRouter);
 app.use("/api/domain-predict", domainPredictRouter);
+app.use("/api/qr-scan", qrScanRouter);
 
 // ── 404 handler ───────────────────────────────────────────────────────────────
 app.use((_req, res) => {

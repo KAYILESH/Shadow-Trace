@@ -171,6 +171,16 @@ export const api = {
         body: JSON.stringify({ domain }),
       }),
   },
+
+  // QR Code Scam Scanner
+  qrScan: {
+    analyze: (url: string) =>
+      apiFetch("/api/qr-scan", {
+        method: "POST",
+        body: JSON.stringify({ url }),
+      }),
+    getHistory: () => apiFetch("/api/qr-scan"),
+  },
 };
 
 export default api;
